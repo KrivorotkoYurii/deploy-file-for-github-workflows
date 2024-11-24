@@ -1,4 +1,5 @@
 1. Change homepage and name in the packege.json file
+1.1 Change README.md file 
 2. Run npm i 
 3. Do little change  and after that git add . git commit -m 'initial' git push origin main
 4. Create PAT token (check file discriprion-how-to-do.txt)
