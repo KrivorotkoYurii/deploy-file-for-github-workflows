@@ -1,0 +1,72 @@
+  Auto Deploy
+Check if you have connected your local project to Git (follow the instruction from Github).
+
+You have mostly worked with GitHub Pages for deployment. Here's the instruction to enable auto-deploy using GitHub Actions, so you don't have to run the deploy command on each change in the main branch:
+First of all, follow your old instructions to enable deploy on GH-Pages.
+Create folder .github in the project root. Then inside create another folder named workflows. Inside the workflows folder, make a file named deploy.yml.
+Your project file structure should be next:
+├── .github
+│   ├── workflows
+│   │   ├── deploy.yml
+├── src
+├── public
+└── .gitignore
+├── package.json
+├── package-lock.json
+Paste the next code inside the deploy.yml file
+name: Github Page Deploy Workflow
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "20.x"
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy
+        uses: crazy-max/ghaction-github-pages@v1
+        with:
+          target_branch: gh-pages
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+Push your change to the main branch.
+Explanation of the file content if needed
+We are having a Github action named Github Page Deploy Workflow.
+The Github action gets triggered on push action on the main branch.
+We have a job named deploy, we are running this on a Ubuntu-latest system somewhere using the cloud.
+Uses refer to the Github repositories we are using to run the commands which we will take a look at soon.
+We are using Node.js version 20.x. We then run the commands
+1. npm ci - Equivalent to npm install which installs all the dependencies.
+2. npm run build - Which builds the build folder.
+We then deploy the project to the gh-pages branch by providing the directory as the build folder.
+Lastly, we authenticate the Github actions workflow using secret GITHUB_TOKEN.
+
+Setup your GitHub secret
+Step 1: Generate a Personal Access Token (PAT)
+Go to the target repository where you want to set up the secret.
+Click on your profile avatar in the upper-right corner and select Settings.
+Scroll down to the bottom and click Developer settings.
+In the left sidebar, expand Personal access tokens and select Tokens (classic).
+Click Generate new token, complete the token setup, and copy the generated token. Keep this safe for the next steps.
+
+Step 2: Add the Token as a Secret in the Repository
+Navigate back to the Settings of the target repository.
+Under Security, expand Secrets and variables and choose Actions.
+Click New repository secret.
+Enter a name for the secret. (Note: It’s recommended to use UPPER_CASE and KEBAB_CASE for readability, like YOUR_SECRET_TITLE.)
+Paste the copied token into the Secret field and click Add secret.
+
+Step 3: Update Your GitHub Actions Workflow to Use the Secret
+Open your deploy.yml or relevant workflow file.
+In the workflow, replace YourSecretTitle with the name of the secret you just created:
+env: 
+  GITHUB_TOKEN: ${{ secrets.YOUR_SECRET_TITLE }
+Now, your GitHub Actions workflow will use the personal access token stored in the secret for secure authentication.
